@@ -1,10 +1,11 @@
-import { Avatar, Box, Button, Checkbox, Container, createTheme, CssBaseline, FormControlLabel, Grid, LinearProgress, Link, TextField, ThemeProvider, Typography } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
-import Copyright from '../copyright/Copyright';
-import * as yup from 'yup';
+import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, LinearProgress, Link, TextField, ThemeProvider, Typography } from '@mui/material';
 import { useFormik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import * as yup from 'yup';
+import Copyright from '../copyright/Copyright';
+import { resetPassword } from '../services/auth.service';
 
 const theme = createTheme();
 
@@ -24,11 +25,11 @@ export default function ChangePassword() {
   const TokenStatus = {
     Verifying: 'Verifying',
     Failed: 'Failed',
-    Verified: 'Verified',
+    Form: 'Form',
     Successful: 'Successful',
   }
   
-  const [tokenStatus, ] = useState(TokenStatus.Successful);
+  const [tokenStatus, setTokenStatus] = useState(TokenStatus.Form);
   const [searchParams, ] = useSearchParams();
   
   useEffect(() => {
@@ -38,18 +39,24 @@ export default function ChangePassword() {
   
   const formik = useFormik({
     initialValues: {
-      firstname: '',
-      lastname: '',
-      email: '',
       password: '',
       passwordConfirm: '',
-      age: false,
-      cgu: false,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: async (values) => {
+      const password = values.password;
+      const token = searchParams.get('token');
+      if ( !token ) {
+        setTokenStatus(TokenStatus.Failed);
+        return;
+      }
+      try {
+        setTokenStatus(TokenStatus.Verifying);
+        await resetPassword(token, password);
+        setTokenStatus(TokenStatus.Successful);
+      } catch (err) {
+        setTokenStatus(TokenStatus.Failed);
+      }
     },
   });
   
@@ -67,7 +74,7 @@ export default function ChangePassword() {
           </div>);
         case TokenStatus.Failed:
           return <div>Sorry, something went wrong.</div>;
-        case TokenStatus.Verified:
+        case TokenStatus.Form:
           return (
             <ThemeProvider theme={theme}>
               <Container component="main" maxWidth="xs">

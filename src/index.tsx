@@ -11,6 +11,7 @@ import ForgotPassword from './auth/ForgotPassword';
 import EmailVerification from './auth/EmailVerification';
 import ChangePassword from './auth/ChangePassword';
 import EmailNotification from './auth/EmailNotification';
+import ResendEmail from './auth/ResendMail';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -26,6 +27,7 @@ root.render(
       <Route path="emailverification" element={<EmailVerification />} />
       <Route path="changepassword" element={<ChangePassword />} />
       <Route path="verifyemail" element={<EmailNotification />} />
+      <Route path="resendmail" element={<ResendEmail />} />
     </Routes>
   </BrowserRouter>,
 

@@ -1,8 +1,7 @@
 import { Box, Grid, LinearProgress } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import CircularProgress from '@mui/material/CircularProgress';
-
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { verify } from '../services/auth.service';
 
 export default function EmailVerification() {
     const EmailStatus = {
@@ -10,12 +9,24 @@ export default function EmailVerification() {
         Failed: 'Failed'
     }
 
-    const [emailStatus, ] = useState(EmailStatus.Verifying);
+    const [emailStatus, setEmailStatus] = useState(EmailStatus.Verifying);
     const [searchParams, ] = useSearchParams();
+    const naviguate = useNavigate();
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        console.log(token);
+        const verifyEmail = async () => {
+            const token = searchParams.get('token');
+            if (token) {
+                try {
+                    await verify(token);
+                    naviguate('/signin');
+                }
+                catch (error) {
+                    setEmailStatus(EmailStatus.Failed);
+                }
+            }
+        };
+        verifyEmail();
     }, []);
 
     function getBody() {
@@ -29,7 +40,7 @@ export default function EmailVerification() {
                     </Box>
                 </div>);
             case EmailStatus.Failed:
-                return <div>Verification failed, you can also verify your account using the <Link to="forgot-password">forgot password</Link> page.</div>;
+                return <div>Verification failed. If this is a mistake, <Link to="/resendmail">ask for a new link.</Link></div>;
         }
     }
 
@@ -43,7 +54,7 @@ export default function EmailVerification() {
         style={{ minHeight: '100vh' }}
       >
         <div>
-            <h3 className="card-header">Verify Email</h3>
+            <h3 className="card-header">Email verification</h3>
             <div className="card-body">{getBody()}</div>
         </div>
       </Grid>

@@ -1,7 +1,6 @@
-import { Box, Grid, LinearProgress } from '@mui/material';
-import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Grid, Link } from '@mui/material';
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 export default function EmailNotification() {
@@ -20,6 +19,9 @@ export default function EmailNotification() {
                 <p>
                     An email has been sent to your email address. Please click on the link in the email to verify your email address.
                 </p>
+                <Link component={RouterLink} to='/signin'>
+                  {"I have already verified my email"}
+                </Link>
             </div>
         </div>
       </Grid>

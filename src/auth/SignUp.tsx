@@ -1,21 +1,25 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import { Link as RouterLink } from 'react-router-dom';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../copyright/Copyright';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { AxiosError } from 'axios';
 import { useFormik } from 'formik';
+import * as React from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import * as yup from 'yup';
+import Copyright from '../copyright/Copyright';
+import { register } from '../services/auth.service';
 
 const theme = createTheme();
 const validationSchema = yup.object({
@@ -43,6 +47,8 @@ const validationSchema = yup.object({
 });
 
 export default function SignUp() {
+  const naviguate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       firstname: '',
@@ -54,16 +60,26 @@ export default function SignUp() {
       cgu: false,
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log(values);
-      alert(JSON.stringify(values, null, 2));
-    },
+      try {
+        await register(values.email, values.password, values.firstname, values.lastname);
+        naviguate('/verifyemail')
+      }
+      catch(err: unknown) {
+        if ( err instanceof AxiosError) {
+          toast.error(err.response?.data.message);
+        }
+      }
+    }
   });
+
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        <ToastContainer />
         <Box
           sx={{
             marginTop: 8,
@@ -177,10 +193,15 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
+            <Grid container>
+              <Grid item xs>
               <Link component={RouterLink} to="/signin" variant='body2'>
                   Already have an account? Sign in
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link component={RouterLink} to="/resendmail" variant='body2'>
+                  {"Didn't receive email ?"}
                 </Link>
               </Grid>
             </Grid>
