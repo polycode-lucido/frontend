@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import * as yup from 'yup';
 import Copyright from '../copyright/Copyright';
-import { resetPassword } from '../services/auth.service';
+import AuthService from '../services/auth.service';
 
 const theme = createTheme();
 
@@ -34,7 +34,6 @@ export default function ChangePassword() {
   
   useEffect(() => {
     const token = searchParams.get('token');
-    console.log(token);
   }, []);
   
   const formik = useFormik({
@@ -52,7 +51,7 @@ export default function ChangePassword() {
       }
       try {
         setTokenStatus(TokenStatus.Verifying);
-        await resetPassword(token, password);
+        await AuthService.resetPassword(token, password);
         setTokenStatus(TokenStatus.Successful);
       } catch (err) {
         setTokenStatus(TokenStatus.Failed);

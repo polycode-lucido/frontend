@@ -16,7 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../copyright/Copyright';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { login } from '../services/auth.service';
+import AuthService from '../services/auth.service';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { AxiosError } from 'axios';
@@ -48,7 +48,7 @@ export default function SignIn() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await login(values.email, values.password);
+        await AuthService.login(values.email, values.password);
         naviguate('/');
       }
       catch(err: unknown) {

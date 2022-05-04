@@ -19,7 +19,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as yup from 'yup';
 import Copyright from '../copyright/Copyright';
-import { register } from '../services/auth.service';
+import AuthService from '../services/auth.service';
 
 const theme = createTheme();
 const validationSchema = yup.object({
@@ -61,9 +61,8 @@ export default function SignUp() {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
       try {
-        await register(values.email, values.password, values.firstname, values.lastname);
+        await AuthService.register(values.email, values.password, values.firstname, values.lastname);
         naviguate('/verifyemail')
       }
       catch(err: unknown) {

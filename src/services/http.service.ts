@@ -15,3 +15,16 @@ export async function getWithCustomBearer(path: string, bearer: string) {
         }
     });
 }
+
+export async function getWithAccess(path: string) {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+        return await axios.get(`http://localhost:3000/${path}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+    }
+
+    throw new Error('No access token');
+}
