@@ -16,10 +16,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../copyright/Copyright';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AuthService from '../services/auth.service';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
+import { UserContext } from '../../contexts/userContext';
+import { API_URL } from '../../env';
 
 const theme = createTheme();
 
@@ -38,6 +39,7 @@ const validationSchema = yup.object({
 export default function SignIn() {
 
   const naviguate = useNavigate();
+  const { setTokens, tokens } = React.useContext(UserContext);
 
   const formik = useFormik({
     initialValues: {
@@ -48,8 +50,9 @@ export default function SignIn() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await AuthService.login(values.email, values.password);
-        naviguate('/');
+        const refreshToken =  await axios.post(`${API_URL}auth/login`, { email: values.email, password: values.password });
+        setTokens({ refresh: refreshToken.data.refreshToken, access: tokens?.access });
+        naviguate('/home');
       }
       catch(err: unknown) {
         if ( err instanceof AxiosError) {

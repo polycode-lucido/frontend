@@ -1,7 +1,8 @@
 import { Box, Grid, LinearProgress } from '@mui/material';
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import AuthService from '../services/auth.service';
+import { API_URL } from '../../env';
 
 export default function EmailVerification() {
     const EmailStatus = {
@@ -14,19 +15,18 @@ export default function EmailVerification() {
     const naviguate = useNavigate();
 
     useEffect(() => {
-        const verifyEmail = async () => {
+        (async () => {
             const token = searchParams.get('token');
             if (token) {
                 try {
-                    await AuthService.verify(token);
+                    await axios.get(`${API_URL}user/verify/${token}`);
                     naviguate('/signin');
                 }
                 catch (error) {
                     setEmailStatus(EmailStatus.Failed);
                 }
             }
-        };
-        verifyEmail();
+        })();
     }, []);
 
     function getBody() {

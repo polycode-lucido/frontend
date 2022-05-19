@@ -12,11 +12,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../copyright/Copyright';
-import AuthService from '../services/auth.service';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_URL } from '../../env';
 
 const theme = createTheme();
 
@@ -33,7 +33,7 @@ export default function ForgotPassword() {
     const email = new FormData(event.currentTarget).get('email');
     if ( email ) {
       try {
-        await AuthService.forgotPassword(email.toString());
+        await axios.get(`${API_URL}user/forgotpassword/${email}`);
         setFormStatus(FormStatus.Sent);
       }
       catch(err) {

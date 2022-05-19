@@ -1,29 +1,24 @@
 import { Container } from '@mui/material';
-import { padding } from '@mui/system';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import CGU from './auth/CGU';
-import ChangePassword from './auth/ChangePassword';
-import EmailNotification from './auth/EmailNotification';
-import EmailVerification from './auth/EmailVerification';
-import ForgotPassword from './auth/ForgotPassword';
-import ResendEmail from './auth/ResendMail';
-import SignIn from './auth/SignIn';
-import SignUp from './auth/SignUp';
-import HomePage from './home_page/HomePage';
-import LandingPage from './landing_page/LandingPage';
-import Navigation from './navigation/Navigation';
-import AuthService from './services/auth.service';
+import CGU from './components/auth/CGU';
+import ChangePassword from './components/auth/ChangePassword';
+import EmailNotification from './components/auth/EmailNotification';
+import EmailVerification from './components/auth/EmailVerification';
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResendEmail from './components/auth/ResendMail';
+import SignIn from './components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
+import HomePage from './components/home_page/HomePage';
+import LandingPage from './components/landing_page/LandingPage';
+import Navigation from './components/navigation/Navigation';
+import UserContextProvider from './contexts/userContext';
 
 function App() {
-
-  useEffect(() => {
-    AuthService.refreshUser();
-  },);
-
   return (
     <Container className="App" maxWidth={false} disableGutters={true} >
+      <UserContextProvider>
       <BrowserRouter>
         <Navigation />
         <Routes>
@@ -38,7 +33,8 @@ function App() {
           <Route path="verifyemail" element={<EmailNotification />} />
           <Route path="resendmail" element={<ResendEmail />} />
         </Routes>
-      </BrowserRouter>,
+      </BrowserRouter>
+      </UserContextProvider>
     </Container>
   );
 }

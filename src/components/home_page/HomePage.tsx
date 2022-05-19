@@ -1,7 +1,7 @@
-import { Button, Container, Paper } from "@mui/material";
+import { Button, Container } from "@mui/material";
 import { Box } from "@mui/system";
-import React from 'react';
 import Carousel from "nuka-carousel";
+import React from 'react';
 
 export default function LandingPage() {
     const items = [

@@ -1,19 +1,18 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
+import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
+import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import AuthService from "../services/auth.service";
-import User from "../models/user.model";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/userContext";
 
 const pages = ["Products", "Pricing", "Blog"];
 
@@ -24,7 +23,8 @@ export default function Navigation() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
-  const [user, setUser] = React.useState<User | undefined>(undefined);
+
+  const { user, setTokens } = React.useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -50,16 +50,9 @@ export default function Navigation() {
   };
 
   const handleLogOut = () => {
-    AuthService.logout();
-    setUser(undefined);
+    setTokens(undefined);
     handleCloseUserMenu();
   };
-
-  React.useEffect(() => {
-    AuthService.getUserObservable().subscribe((user) => {
-      setUser(user);
-    });
-  }, []);
 
   const getUser = () => {
     if (user) {
@@ -67,7 +60,10 @@ export default function Navigation() {
         <Box sx={{ flexGrow: 0 }}>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt={user.firstname.toUpperCase()} src="/static/images/avatar/2.jpg" />
+              <Avatar
+                alt={user.firstname.toUpperCase()}
+                src="/static/images/avatar/2.jpg"
+              />
             </IconButton>
           </Tooltip>
           <Menu
@@ -95,18 +91,18 @@ export default function Navigation() {
     } else {
       return (
         <Box sx={{ flexGrow: 0, display: "flex" }}>
-            <Button
-                onClick={ handleSignUp }
-                sx={{ my: 1, color: "white", display: "block" }}
-              >
-                {"Register"}
-            </Button>
-            <Button
-                onClick={ handleSignIn }
-                sx={{ my: 1, color: "white", display: "block" }}
-              >
-                {"Sign in"}
-            </Button>
+          <Button
+            onClick={handleSignUp}
+            sx={{ my: 1, color: "white", display: "block" }}
+          >
+            {"Register"}
+          </Button>
+          <Button
+            onClick={handleSignIn}
+            sx={{ my: 1, color: "white", display: "block" }}
+          >
+            {"Sign in"}
+          </Button>
         </Box>
       );
     }

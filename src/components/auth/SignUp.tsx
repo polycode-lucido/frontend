@@ -11,15 +11,15 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useFormik } from 'formik';
 import * as React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as yup from 'yup';
+import { API_URL } from '../../env';
 import Copyright from '../copyright/Copyright';
-import AuthService from '../services/auth.service';
 
 const theme = createTheme();
 const validationSchema = yup.object({
@@ -62,12 +62,14 @@ export default function SignUp() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        await AuthService.register(values.email, values.password, values.firstname, values.lastname);
+        await axios.post(`${API_URL}user/register`, { email: values.email, password: values.password, firstname: values.firstname, lastname: values.lastname });
         naviguate('/verifyemail')
       }
       catch(err: unknown) {
         if ( err instanceof AxiosError) {
           toast.error(err.response?.data.message);
+        } else {
+          console.error(err);
         }
       }
     }

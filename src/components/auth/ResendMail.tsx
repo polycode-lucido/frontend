@@ -1,8 +1,11 @@
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Avatar, Box, Button, Container, createTheme, Grid, Link, TextField, ThemeProvider, Typography } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import axios, { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import { API_URL } from '../../env';
 import Copyright from '../copyright/Copyright';
 
 
@@ -14,15 +17,23 @@ export default function ResendEmail() {
         Sent: 'Sent',
         Pending: 'Pending'
     }
+    
+    const [formStatus, setFormStatus] = useState(FormStatus.Pending);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
+        const email = new FormData(event.currentTarget).get('email');
         setFormStatus(FormStatus.Pending);
+        try {
+            await axios.get(`${API_URL}user/resend/${email}`);
+            setFormStatus(FormStatus.Sent);
+        } catch (err) {
+            if (err instanceof AxiosError && err.response)
+                toast.error(err.response.data.message);
+        }
       };
     
 
-    const [formStatus, setFormStatus] = useState(FormStatus.Pending);
 
     function getBody() {
         switch (formStatus) {
@@ -98,6 +109,8 @@ export default function ResendEmail() {
         style={{ minHeight: '100vh' }}
       >
         <div>
+          <ToastContainer />
+
             {getBody()}
             {/* <h3 className="card-header">Verify Email</h3>
             <div className="card-body">{getBody()}</div> */}

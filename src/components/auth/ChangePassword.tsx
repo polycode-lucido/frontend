@@ -1,11 +1,12 @@
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Avatar, Box, Button, Container, createTheme, CssBaseline, Grid, LinearProgress, Link, TextField, ThemeProvider, Typography } from '@mui/material';
+import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import * as yup from 'yup';
+import { API_URL } from '../../env';
 import Copyright from '../copyright/Copyright';
-import AuthService from '../services/auth.service';
 
 const theme = createTheme();
 
@@ -31,10 +32,20 @@ export default function ChangePassword() {
   
   const [tokenStatus, setTokenStatus] = useState(TokenStatus.Form);
   const [searchParams, ] = useSearchParams();
+  const [password, setPassword] = useState('');
   
   useEffect(() => {
-    const token = searchParams.get('token');
-  }, []);
+    (async () => {
+      if (tokenStatus === TokenStatus.Verifying) {
+        try {
+          await axios.post(`${API_URL}user/resetpassword/${searchParams.get('token')}`, { password } );
+          setTokenStatus(TokenStatus.Successful);
+        } catch (error) {
+          setTokenStatus(TokenStatus.Failed);
+        }
+      }
+    })();
+  }, [tokenStatus]);
   
   const formik = useFormik({
     initialValues: {
@@ -49,13 +60,8 @@ export default function ChangePassword() {
         setTokenStatus(TokenStatus.Failed);
         return;
       }
-      try {
         setTokenStatus(TokenStatus.Verifying);
-        await AuthService.resetPassword(token, password);
-        setTokenStatus(TokenStatus.Successful);
-      } catch (err) {
-        setTokenStatus(TokenStatus.Failed);
-      }
+        setPassword(password);
     },
   });
   
@@ -162,4 +168,3 @@ export default function ChangePassword() {
         </Grid>
         );
       }
-      
