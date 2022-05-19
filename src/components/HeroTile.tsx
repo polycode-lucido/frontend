@@ -1,21 +1,37 @@
-import { Button, Container, Stack, Typography } from "@mui/material";
+import { Button, Container, Rating, Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import axios from "axios";
 import Carousel from "nuka-carousel";
 import React from "react";
+import { API_URL } from "../env";
 
 export default function HeroTile() {
-  const items = [
+
+  const [items, setItems] = React.useState([
     {
       url: `${process.env.PUBLIC_URL + "/hello_world.png"}`,
       textColor: "teal",
       description: "Learn the basics of programming !",
+      difficulty: 4,
     },
     {
       url: `${process.env.PUBLIC_URL + "/web_development.png"}`,
       textColor: "white",
       description: "Some random course !",
+      difficulty: 3,
     },
-  ];
+  ])
+
+  React.useEffect(() => {
+    (async () => {
+      const data = await axios.get<any[]>(`${API_URL + "course/recommended"}`);
+      data.data.forEach((item) => {
+        item.url = `${process.env.PUBLIC_URL + "/course/"}${item._id}.png`;
+        item.textColor = "teal";
+      });
+      setItems(data.data);
+    })();
+  }, [])
 
   return (
     <Container maxWidth={false} disableGutters={true} sx={{ width: "100%" }}>
@@ -58,6 +74,7 @@ export default function HeroTile() {
                 >
                   {item.description}
                 </Typography>
+                <Rating name="read-only" value={item.difficulty} readOnly />
                 <Stack
                   sx={{ pt: 4 }}
                   direction="row"
