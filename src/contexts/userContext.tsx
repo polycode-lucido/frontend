@@ -4,7 +4,7 @@ import React from "react";
 import User from "../models/user.model";
 
 export interface UserContextData {
-  user: User | undefined;
+  user: User | undefined | null;
   tokens: { access?: string; refresh: string } | undefined;
   setTokens: (tokens: UserContextData["tokens"]) => void;
 }
@@ -22,7 +22,7 @@ const useAuthContext = () => {
     access,
     refresh,
   });
-  const [user, setUser] = React.useState<UserContextData["user"] | undefined>(
+  const [user, setUser] = React.useState<UserContextData["user"]>(
     undefined
   );
 
@@ -42,9 +42,6 @@ const useAuthContext = () => {
       if ((refresh && !access) || (refresh && exp && exp < 0)) {
         await fetchNewAccessToken();
       }
-      else if ( user !== undefined ) {
-        setUser(undefined);
-      }
     })();
   }, [refresh]);
 
@@ -60,7 +57,7 @@ const useAuthContext = () => {
         setTokens({ access, refresh });
         setUser(user.data);
         if (exp) {
-          const clear = setTimeout(fetchNewAccessToken, exp * 1000);
+          const clear = setTimeout(() => fetchNewAccessToken(), exp * 1000);
           return () => clearTimeout(clear);
         }
       }
@@ -71,14 +68,17 @@ const useAuthContext = () => {
     if (!tokens) {
       window.localStorage.removeItem("refreshToken");
       window.localStorage.removeItem("accessToken");
+      setAccess("");
+      setRefresh("");
       setTokens(undefined);
-      setUser(undefined);
+      setUser(null);
     }
     else {
       setTokens(tokens);
       if ( tokens.access )
         setAccess(tokens.access);
       setRefresh(tokens.refresh);
+      setUser(undefined);
     }
   };
 
@@ -103,7 +103,7 @@ const useLocalStorage = (key: string, initialValue: string) => {
   });
   const setValue = (value: string) => {
     setStoredValue(value);
-    window.localStorage.setItem(key, JSON.stringify(value));
+    window.localStorage.setItem(key, value);
   };
   return [storedValue, setValue] as const;
 };
