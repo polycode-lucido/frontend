@@ -3,24 +3,14 @@ import { Box } from "@mui/system";
 import axios from "axios";
 import Carousel from "nuka-carousel";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../env";
 
 export default function HeroTile() {
 
-  const [items, setItems] = React.useState([
-    {
-      url: `${process.env.PUBLIC_URL + "/hello_world.png"}`,
-      textColor: "teal",
-      description: "Learn the basics of programming !",
-      difficulty: 4,
-    },
-    {
-      url: `${process.env.PUBLIC_URL + "/web_development.png"}`,
-      textColor: "white",
-      description: "Some random course !",
-      difficulty: 3,
-    },
-  ])
+  const [items, setItems] = React.useState<any[]>([])
+
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     (async () => {
@@ -32,6 +22,10 @@ export default function HeroTile() {
       setItems(data.data);
     })();
   }, [])
+
+  const onCourseClick = (course: any) => {
+    navigate(`/course?courseId=${course._id}`);
+  };
 
   return (
     <Container maxWidth={false} disableGutters={true} sx={{ width: "100%" }}>
@@ -81,7 +75,7 @@ export default function HeroTile() {
                   spacing={2}
                   justifyContent="right"
                 >
-                  <Button variant="contained" sx={{ marginBottom: "30px" }}>
+                  <Button variant="contained" sx={{ marginBottom: "30px" }} onClick={() => onCourseClick(item)}>
                     Start the course
                   </Button>
                 </Stack>
