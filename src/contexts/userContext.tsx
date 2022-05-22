@@ -1,6 +1,7 @@
 import axios from "axios";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import React from "react";
+import { API_URL } from "../env";
 import User from "../models/user.model";
 
 export interface UserContextData {
@@ -27,7 +28,7 @@ const useAuthContext = () => {
   );
 
   const fetchNewAccessToken = async () => {
-    const access = await axios.get(`http://localhost:3000/auth/token`, {
+    const access = await axios.get(`${API_URL}auth/token`, {
       headers: {
         Authorization: `Bearer ${refresh}`,
       },
@@ -48,7 +49,7 @@ const useAuthContext = () => {
   React.useEffect(() => {
     (async () => {
       if (access) {
-        const user = await axios.get(`http://localhost:3000/user/me`, {
+        const user = await axios.get(`${API_URL}user/me`, {
           headers: {
             Authorization: `Bearer ${access}`,
           },
