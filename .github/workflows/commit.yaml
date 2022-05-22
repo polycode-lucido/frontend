@@ -1,0 +1,71 @@
+name: Building docker image
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Fetch all history for all tags and branches
+        run: git fetch --prune --unshallow
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build and push the docker image
+        uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          image: polycode-lucido-frontend
+          addLatest: true
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Fetch all history for all tags and branches
+        run: git fetch --prune --unshallow
+
+      - name: Extract branch name
+        uses: vazco/github-actions-branch-name@v1
+        id: branch
+
+      # - name: Create namespace
+      #   uses: steebchen/kubectl@v2.0.0
+      #   with:
+      #     config: ${{ secrets.KUBERNETES_CONFIG }}
+      #     command: create namespace ${{ steps.lowercase.outputs.lowercase }}-pr-dev
+
+      # - name: Create secret for docker registery
+      #   uses: steebchen/kubectl@v2.0.0
+      #   with:
+      #     config: ${{ secrets.KUBERNETES_CONFIG }}
+      #     command: get secret regcred --namespace=default -oyaml | grep -v '^\s*namespace:\s' | kubectl apply --namespace=${{ steps.lowercase.outputs.lowercase }}-pr-dev -f -
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GH_DISPATCHER_TOKEN }}
+          repository: polycode-lucido/deployments
+          event-type: deploy-frontend
+          client-payload: |
+            {
+              "author": "${{ github.actor }}",
+              "version": "${{ steps.version.outputs.version }}"
+            }
